@@ -69,6 +69,9 @@ class PgDocument(Document):
         """
         pass
 
+    def json(self):
+        return json.dumps(self._data)
+
     @classmethod
     def get_table(cls):
         if cls._table is None:

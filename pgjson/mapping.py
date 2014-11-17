@@ -23,8 +23,7 @@ class PgDocument(Document):
         if id is not None:
             self.id = id
 
-        if self._table is None:
-            self._table = _inflect.plural(self.__class__.__name__).lower()
+        self._table = self.__class__.get_table()
 
         if self._version is None:
             raise Exception('_version must be set!')
@@ -71,12 +70,24 @@ class PgDocument(Document):
         pass
 
     @classmethod
+    def get_table(cls):
+        if cls._table is None:
+            return _inflect.plural(cls.__name__).lower()
+        return cls._table
+
+    @classmethod
     def load(cls, db, id):
-        # doc = db.get(id)
-        # if doc is None:
-        #     return None
-        # return cls.wrap(doc)
-        pass
+        table = cls.get_table()
+        rec = db.one("SELECT * FROM %s " % table +
+                     "WHERE id=%s", [id])
+        obj = cls.wrap(rec.doc)
+        obj.id = rec.id
+        return obj
+
+    def __repr__(self):
+        return '<%s %r@%s %r>' % (type(self).__name__, self.id, self._table,
+                                  dict([(k, v) for k, v in self.items()
+                                        if k not in ('_id')]))
 
 
 class Mapping(Mapping):

@@ -5,6 +5,9 @@ from couchdb.mapping import Document, Mapping, TextField, \
     DateTimeField, BooleanField, FloatField, ListField, \
     DictField, IntegerField, LongField
 import json
+import inflect
+
+_inflect = inflect.engine()
 
 
 class PgDocument(Document):
@@ -19,7 +22,8 @@ class PgDocument(Document):
             self.id = id
             self.__id = id
         if self._table is None:
-            raise Exception('_table must be set!')
+            self._table = _inflect.plural(self.__class__.__name__).lower()
+
         if self._version is None:
             raise Exception('_version must be set!')
 

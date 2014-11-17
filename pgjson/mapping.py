@@ -14,7 +14,6 @@ _inflect = inflect.engine()
 class PgDocument(Document):
     _table = None
     _version = None
-    # id = LongField()
 
     __deleted = False
 
@@ -24,6 +23,8 @@ class PgDocument(Document):
             self.id = id
 
         self._table = self.__class__.get_table()
+        self.type = self.__class__.__name__.lower()
+        self._data['type'] = self.type
 
         if self._version is None:
             raise Exception('_version must be set!')

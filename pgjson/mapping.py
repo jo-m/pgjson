@@ -88,6 +88,17 @@ class PgDocument(Document):
         obj.id = rec.id
         return obj
 
+    @classmethod
+    def load_json(cls, json_obj):
+        if isinstance(json_obj, str):
+            json_obj = json.loads(json_obj)
+        return cls.wrap(json_obj)
+
+    @classmethod
+    def store_json(cls, json_obj, db):
+        obj = cls.load_json(json_obj)
+        return obj.store(db)
+
     def __repr__(self):
         return '<%s %r@%s %r>' % (type(self).__name__, self.id, self._table,
                                   dict([(k, v) for k, v in self.items()

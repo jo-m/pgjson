@@ -13,14 +13,13 @@ _inflect = inflect.engine()
 class PgDocument(Document):
     _table = None
     _version = None
-    __id = None
-    id = LongField()
+    # id = LongField()
 
     def __init__(self, id=None, **values):
         super(PgDocument, self).__init__(id, **values)
         if id is not None:
             self.id = id
-            self.__id = id
+
         if self._table is None:
             self._table = _inflect.plural(self.__class__.__name__).lower()
 
@@ -36,19 +35,19 @@ class PgDocument(Document):
 
     def __create(self, db):
         json_data = json.dumps(self._data)
-        self.__id = db.one("INSERT INTO %s " % self._table +
-                           "(version, doc) VALUES (%s, %s) RETURNING id",
-                           (self._version, json_data))
-        self.id = self.__id
-        return self.__id
+        self.id = db.one("INSERT INTO %s " % self._table +
+                         "(version, doc) VALUES (%s, %s) RETURNING id",
+                         (self._version, json_data))
+        return self.id
 
     def __update(self, db):
-        if self.__id is None:
-            self.__id = self.id
-
         json_data = json.dumps(self._data)
-        db.run("UPDATE %s SET " % self._table +
-               "doc=%s WHERE id=%s;", (json_data, self.__id))
+        with db.get_cursor() as cursor:
+            cursor.run("UPDATE %s SET " % self._table +
+                       "doc=%s WHERE id=%s;", (json_data, self.id))
+            if cursor.rowcount != 1:
+                raise Exception('Document not found (id=%s, table=%s)'
+                                % (str(self.id), self._table))
 
     @classmethod
     def load(cls, db, id):

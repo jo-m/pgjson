@@ -3,6 +3,7 @@
 
 
 from postgres import Postgres
+from pgjson.mapping import PgDocument
 
 
 class PgDatabase(Postgres):

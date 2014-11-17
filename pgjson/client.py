@@ -47,3 +47,6 @@ class PgDatabase(Postgres):
         Return the document with the specified ID.
         """
         pass
+    def setup_tables(self):
+        for cls in PgDocument.__subclasses__():
+            cls.__call__().setup_table(self)

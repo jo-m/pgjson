@@ -6,6 +6,7 @@ from couchdb.mapping import Document, Mapping, TextField, \
     DictField, IntegerField, LongField
 import json
 import inflect
+import psycopg2
 
 _inflect = inflect.engine()
 
@@ -27,11 +28,18 @@ class PgDocument(Document):
             raise Exception('_version must be set!')
 
     def store(self, db):
-        if self.__id is None and self.id is None:
-            self.__create(db)
-        else:
-            self.__update(db)
-        return self
+        try:
+            if self.id is None:
+                self.__create(db)
+            else:
+                self.__update(db)
+            return self
+        except psycopg2.ProgrammingError:
+            raise Exception('Table %s does not exist!' % self._table)
+
+    def setup_table(self, db):
+        db.run("CREATE TABLE IF NOT EXISTS %s " % self._table +
+               "(id SERIAL, version INT, doc JSON);")
 
     def __create(self, db):
         json_data = json.dumps(self._data)

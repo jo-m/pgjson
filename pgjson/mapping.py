@@ -32,9 +32,9 @@ class PgDocument(Document):
 
     def __create(self, db):
         json_data = json.dumps(self._data)
-        self.__id = db._db.one("INSERT INTO %s " % self._table +
-                               "(version, doc) VALUES (%s, %s) RETURNING id",
-                               (self._version, json_data))
+        self.__id = db.one("INSERT INTO %s " % self._table +
+                           "(version, doc) VALUES (%s, %s) RETURNING id",
+                           (self._version, json_data))
         self.id = self.__id
         return self.__id
 
@@ -43,8 +43,8 @@ class PgDocument(Document):
             self.__id = self.id
 
         json_data = json.dumps(self._data)
-        db._db.run("UPDATE %s SET " % self._table +
-                   "doc=%s WHERE id=%s;", (json_data, self.__id))
+        db.run("UPDATE %s SET " % self._table +
+               "doc=%s WHERE id=%s;", (json_data, self.__id))
 
     @classmethod
     def load(cls, db, id):

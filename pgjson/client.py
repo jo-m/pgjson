@@ -5,11 +5,9 @@
 from postgres import Postgres
 
 
-class PgDatabase():
-    _db = None
-
+class PgDatabase(Postgres):
     def __init__(self, url):
-        self._db = Postgres(url)
+        Postgres.__init__(self, url)
 
     def __getitem__(self, name):
         """

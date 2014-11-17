@@ -16,6 +16,8 @@ class PgDocument(Document):
     _version = None
     # id = LongField()
 
+    __deleted = False
+
     def __init__(self, id=None, **values):
         super(PgDocument, self).__init__(id, **values)
         if id is not None:
@@ -56,6 +58,17 @@ class PgDocument(Document):
             if cursor.rowcount != 1:
                 raise Exception('Document not found (id=%s, table=%s)'
                                 % (str(self.id), self._table))
+
+    def delete(self, db):
+        db.delete(self)
+        del self._data['_id']
+        self.__deleted = True
+
+    def __getitem__(self, name):
+        """
+        doc = db[doc_id]
+        """
+        pass
 
     @classmethod
     def load(cls, db, id):

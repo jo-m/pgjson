@@ -1,2 +1,5 @@
 CouchDB==1.0
+inflect==0.2.4
 postgres==2.1.2
+psycopg2==2.5.4
+wsgiref==0.1.2
